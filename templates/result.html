@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado del Pago</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5 text-center" style="max-width: 600px;">
+        <div class="card p-5 shadow-sm">
+            {% if result.success %}
+                <h1 class="display-1">✅</h1>
+                <h2 class="text-success mb-3">¡Pago Exitoso!</h2>
+                <p class="fs-5">{{ result.message }}</p>
+                <p class="text-muted">ID de Transacción: <strong>{{ result.transaction_id }}</strong></p>
+            {% else %}
+                <h1 class="display-1">❌</h1>
+                <h2 class="text-danger mb-3">El pago ha fallado</h2>
+                <p class="fs-5">{{ result.message }}</p>
+                <p class="text-muted">Por favor, intenta con otro método o verifica tus datos.</p>
+            {% endif %}
+            
+            <a href="/" class="btn btn-primary mt-4">Volver a la tienda</a>
+        </div>
+    </div>
+</body>
+</html>
